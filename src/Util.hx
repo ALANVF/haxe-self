@@ -57,64 +57,72 @@ class Util {
 
 	@:noUsing
 	static macro function detuple(expr) {
+		final anonName = switch expr {
+			case macro $i{name} = $rest:
+				expr = rest;
+				name;
+			default:
+				"__anon__Tuple";
+		};
+
 		return switch expr {
 			case macro @var [$i{n1}, $i{n2}] = $rhs: macro @:mergeBlock {
-				final __anon__Tuple2 = $rhs;
-				var $n1 = __anon__Tuple2._1;
-				var $n2 = __anon__Tuple2._2;
+				final $anonName = $rhs;
+				var $n1 = $i{anonName}._1;
+				var $n2 = $i{anonName}._2;
 			};
 			case macro @final [$i{n1}, $i{n2}] = $rhs: macro @:mergeBlock {
-				final __anon__Tuple2 = $rhs;
-				final $n1 = __anon__Tuple2._1;
-				final $n2 = __anon__Tuple2._2;
+				final $anonName = $rhs;
+				final $n1 = $i{anonName}._1;
+				final $n2 = $i{anonName}._2;
 			};
 			case macro [$v1, $v2] = $rhs: macro @:mergeBlock {
-				final __anon__Tuple2 = $rhs;
+				final $anonName = $rhs;
 				${switch v1 {
 					case macro _: macro @:mergeBlock {};
-					case macro @var $i{n}: macro var $n = __anon__Tuple2._1;
-					case macro @final $i{n}: macro final $n = __anon__Tuple2._1;
-					default: macro $v1 = __anon__Tuple2._1;
+					case macro @var $i{n}: macro var $n = $i{anonName}._1;
+					case macro @final $i{n}: macro final $n = $i{anonName}._1;
+					default: macro $v1 = $i{anonName}._1;
 				}};
 				${switch v2 {
 					case macro _: macro @:mergeBlock {};
-					case macro @var $i{n}: macro var $n = __anon__Tuple2._2;
-					case macro @final $i{n}: macro final $n = __anon__Tuple2._2;
-					default: macro $v2 = __anon__Tuple2._2;
+					case macro @var $i{n}: macro var $n = $i{anonName}._2;
+					case macro @final $i{n}: macro final $n = $i{anonName}._2;
+					default: macro $v2 = $i{anonName}._2;
 				}};
 			};
 
 			case macro @var [$i{n1}, $i{n2}, $i{n3}] = $rhs: macro @:mergeBlock {
-				final __anon__Tuple3 = $rhs;
-				var $n1 = __anon__Tuple3._1;
-				var $n2 = __anon__Tuple3._2;
-				var $n3 = __anon__Tuple3._3;
+				final $anonName = $rhs;
+				var $n1 = $i{anonName}._1;
+				var $n2 = $i{anonName}._2;
+				var $n3 = $i{anonName}._3;
 			};
 			case macro @final [$i{n1}, $i{n2}, $i{n3}] = $rhs: macro @:mergeBlock {
-				final __anon__Tuple3 = $rhs;
-				final $n1 = __anon__Tuple3._1;
-				final $n2 = __anon__Tuple3._2;
-				final $n3 = __anon__Tuple3._3;
+				final $anonName = $rhs;
+				final $n1 = $i{anonName}._1;
+				final $n2 = $i{anonName}._2;
+				final $n3 = $i{anonName}._3;
 			};
 			case macro [$v1, $v2, $v3] = $rhs: macro @:mergeBlock {
-				final __anon__Tuple3 = $rhs;
+				final $anonName = $rhs;
 				${switch v1 {
 					case macro _: macro @:mergeBlock {};
-					case macro @var $i{n}: macro var $n = __anon__Tuple3._1;
-					case macro @final $i{n}: macro final $n = __anon__Tuple3._1;
-					default: macro $v1 = __anon__Tuple3._1;
+					case macro @var $i{n}: macro var $n = $i{anonName}._1;
+					case macro @final $i{n}: macro final $n = $i{anonName}._1;
+					default: macro $v1 = $i{anonName}._1;
 				}};
 				${switch v2 {
 					case macro _: macro @:mergeBlock {};
-					case macro @var $i{n}: macro var $n = __anon__Tuple3._2;
-					case macro @final $i{n}: macro final $n = __anon__Tuple3._2;
-					default: macro $v2 = __anon__Tuple3._2;
+					case macro @var $i{n}: macro var $n = $i{anonName}._2;
+					case macro @final $i{n}: macro final $n = $i{anonName}._2;
+					default: macro $v2 = $i{anonName}._2;
 				}};
 				${switch v3 {
 					case macro _: macro @:mergeBlock {};
-					case macro @var $i{n}: macro var $n = __anon__Tuple3._3;
-					case macro @final $i{n}: macro final $n = __anon__Tuple3._3;
-					default: macro $v3 = __anon__Tuple3._3;
+					case macro @var $i{n}: macro var $n = $i{anonName}._3;
+					case macro @final $i{n}: macro final $n = $i{anonName}._3;
+					default: macro $v3 = $i{anonName}._3;
 				}};
 			};
 
@@ -194,8 +202,12 @@ class Util {
 	 *
 	 * New patterns:
 	 * - Range pattern: `min ... max`
-	 *   - works on ints, chars (<int>.code), and fully-qualified enums
+	 *   - works on ints, chars (`<str>.code`), and fully-qualified enums
+	 *   - inclusive by default, adding `!` to either side of the range makes that side exclusive
 	 *   - Note: `min ... max | other` is invalid since `|` is tighter than `...`, `(min ... max) | other` is valid
+	 *
+	 * - Tuple pattern: `tuple(a, b, ...)`
+	 *   - destructures a tuple value
 	 *
 	 * - Type test pattern: `obj is Object`
 	 *   - `obj` can either be a var name, an ignore pattern, an extractor, or an object literal (for destructuring)
@@ -289,6 +301,17 @@ class Util {
 					{expr: EDisplay(collect(expr2), k), pos: pos};
 
 				case macro [$a{values}]: macro $a{values.map(collect)};
+
+				case macro tuple($a{values}):
+					{
+						expr: EObjectDecl([
+							for(i => v in values) {
+								field: '_${i + 1}',
+								expr: v
+							}
+						]),
+						pos: e.pos
+					};
 				
 				case {expr: EIs(lhs, type), pos: pos}:
 					final itype = switch type {

@@ -135,8 +135,8 @@ class Parser {
 			tuple(expr, rest);
 		},
 		_ => {
-			detuple(@var [expr, rest] = parseBaseExpr(tokens));
-			if(!rest.match(Cons(TName(_), _))) return __anon__Tuple2;
+			detuple(res = @var [expr, rest] = parseBaseExpr(tokens));
+			if(!rest.match(Cons(TName(_), _))) return res;
 
 			while(true) rest._match(
 				at([TName(name), ...rest2]) => {
@@ -166,8 +166,8 @@ class Parser {
 			tuple(expr, rest);
 		},
 		_ => {
-			detuple(@var [expr, rest] = parseUnaryExpr(tokens));
-			if(!rest.match(Cons(TOp(_), _))) return __anon__Tuple2;
+			detuple(res = @var [expr, rest] = parseUnaryExpr(tokens));
+			if(!rest.match(Cons(TOp(_), _))) return res;
 			
 			while(true) rest._match(
 				at([TOp(op), ...rest2]) => {
@@ -202,7 +202,7 @@ class Parser {
 			tuple(EKeywordMsg(EImplicitSelf, name, labels, args), rest);
 		},
 		_ => {
-			detuple(@var [expr, rest] = parseBinaryExpr(tokens));
+			detuple(res = @var [expr, rest] = parseBinaryExpr(tokens));
 			rest._match(
 				at([TLabel(label), ...rest]) => {
 					detuple([@final arg, rest] = parseKeywordExpr(rest));
@@ -223,7 +223,7 @@ class Parser {
 
 					tuple(EKeywordMsg(expr, name, labels, args), rest);
 				},
-				_ => __anon__Tuple2
+				_ => res
 			);
 		}
 	);
