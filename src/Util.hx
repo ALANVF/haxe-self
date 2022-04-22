@@ -199,7 +199,7 @@ class Util {
 	 *
 	 * - Type test pattern: `obj is Object`
 	 *   - `obj` can either be a var name, an ignore pattern, an extractor, or an object literal (for destructuring)
-	 *   - when used in an OR-pattern like `obj is A | obj is B`, `b` will be the common supertype of `A` and `B`
+	 *   - when used in an OR-pattern like `obj is A | obj is B`, `obj` will be the common supertype of `A` and `B`
 	 *   - Note: `obj` unfortunately cannot be used in the `when` clause
 	 *
 	 * - Null assertion pattern: `value!`
@@ -214,7 +214,6 @@ class Util {
 	 * - List pattern: `[a, b, ...rest]`
 	 *   - matches on a variable-length cons list using array-like syntax
 	 *   - Note: this is only implemented for cons lists (`util.List`), arrays are not yet supported
-
 	**/
 	
 	static macro function _match<T>(value: ExprOf<T>, cases: Array<Expr>): Expr {
