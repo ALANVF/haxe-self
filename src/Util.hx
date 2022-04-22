@@ -303,11 +303,12 @@ class Util {
 				case macro [$a{values}]: macro $a{values.map(collect)};
 
 				case macro tuple($a{values}):
+					didChange = true;
 					{
 						expr: EObjectDecl([
 							for(i => v in values) {
 								field: '_${i + 1}',
-								expr: v
+								expr: collect(v)
 							}
 						]),
 						pos: e.pos
